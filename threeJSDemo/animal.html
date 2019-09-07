@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>three.js webgl - animation - basic</title>
+    <script src="./js/three.js"></script>
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <style>
+        body {
+            color: #fff;
+            font-family:Monospace;
+            font-size:13px;
+            text-align:center;
+
+            background-color: #000;
+            margin: 0px;
+            overflow: hidden;
+        }
+
+        #info {
+            position: absolute;
+            top: 0px; width: 100%;
+            padding: 5px;
+        }
+
+        a {
+            color: #f00;
+        }
+
+    </style>
+</head>
+<body>
+<div id="info">
+    <a href="http://threejs.org" target="_blank" rel="noopener">three.js</a> webgl - animation - basic use
+</div>
+<script>
+    var stats, clock;
+    var scene, camera, renderer, mixer;
+    function init() {
+        //初始化场景
+        scene = new THREE.Scene();
+        //初始化相机
+        camera = new THREE.PerspectiveCamera( 40, window.innerWidth / window.innerHeight, 1, 1000 );
+        camera.position.set( 50, 50, 100 );
+        camera.lookAt( scene.position );
+        //用于简单模拟3个坐标轴的对象.
+        var axesHelper = new THREE.AxesHelper( 10 );
+        scene.add( axesHelper );
+        //添加几何体
+        var geometry = new THREE.BoxBufferGeometry( 5, 5, 5 );
+        var material = new THREE.MeshBasicMaterial( { color: 0xffffff, transparent: true } );
+        var mesh = new THREE.Mesh( geometry, material );
+        scene.add( mesh );
+
+        // 反应颜色变化的关键帧轨道
+        var colorKF = new THREE.ColorKeyframeTrack( '.material.color', [ 0, 1, 2 ], [ 1, 0, 0, 0, 1, 0, 0, 0, 1 ], THREE.InterpolateDiscrete );
+        //
+        var clip = new THREE.AnimationClip( 'Action', 3, [ colorKF ] );
+
+        // setup the AnimationMixer
+        mixer = new THREE.AnimationMixer( mesh );
+
+        // create a ClipAction and set it to play
+        var clipAction = mixer.clipAction( clip );
+        clipAction.play();
+
+        //初始化渲染器
+        renderer = new THREE.WebGLRenderer( { antialias: true } );
+        renderer.setPixelRatio( window.devicePixelRatio );
+        renderer.setSize( window.innerWidth, window.innerHeight );
+        document.body.appendChild( renderer.domElement );
+
+        clock = new THREE.Clock();
+    }
+    function animate() {
+
+        requestAnimationFrame( animate );
+
+        render();
+
+    }
+    function render() {
+        var delta = clock.getDelta();
+
+        if ( mixer ) {
+
+            mixer.update( delta );
+
+        }
+
+        renderer.render( scene, camera );
+    }
+
+    init();
+    animate();
+</script>
+</body>
+</html>
